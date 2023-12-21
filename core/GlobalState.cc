@@ -591,9 +591,6 @@ void GlobalState::initEmpty() {
                  .build();
     ENFORCE(method == Symbols::SorbetPrivateStaticSingleton_sig());
 
-    klass = enterClassSymbol(Loc::none(), Symbols::root(), Names::Constants::PackageSpecRegistry());
-    ENFORCE(klass == Symbols::PackageSpecRegistry());
-
     // PackageSpec is a class that can be subclassed.
     klass = enterClassSymbol(Loc::none(), Symbols::root(), Names::Constants::PackageSpec());
     klass.data(*this)->setIsModule(false);

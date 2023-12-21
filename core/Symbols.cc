@@ -22,7 +22,7 @@ namespace sorbet::core {
 
 using namespace std;
 
-const int Symbols::MAX_SYNTHETIC_CLASS_SYMBOLS = 215;
+const int Symbols::MAX_SYNTHETIC_CLASS_SYMBOLS = 214;
 const int Symbols::MAX_SYNTHETIC_METHOD_SYMBOLS = 53;
 const int Symbols::MAX_SYNTHETIC_FIELD_SYMBOLS = 20;
 const int Symbols::MAX_SYNTHETIC_TYPEARGUMENT_SYMBOLS = 4;
@@ -33,10 +33,13 @@ constexpr string_view COLON_SEPARATOR = "::"sv;
 constexpr string_view HASH_SEPARATOR = "#"sv;
 
 string showInternal(const GlobalState &gs, core::SymbolRef owner, core::NameRef name, string_view separator) {
-    if (!owner.exists() || owner == Symbols::root() || owner == core::Symbols::PackageSpecRegistry()) {
+    if (!owner.exists() || owner == Symbols::root()) {
         return name.show(gs);
+    } else if (name == core::Names::Constants::PackageSpecRegistry()) {
+        return owner.show(gs);
+    } else {
+        return absl::StrCat(owner.show(gs), separator, name.show(gs));
     }
-    return absl::StrCat(owner.show(gs), separator, name.show(gs));
 }
 } // namespace
 
@@ -625,16 +628,11 @@ bool ClassOrModuleRef::isOnlyDefinedInFile(const GlobalState &gs, core::FileRef 
 
 // Documented in SymbolRef.h
 bool ClassOrModuleRef::isPackageSpecSymbol(const GlobalState &gs) const {
-    auto sym = *this;
-    while (sym.exists() && sym != core::Symbols::root()) {
-        if (sym == core::Symbols::PackageSpecRegistry()) {
-            return true;
-        }
-
-        sym = sym.data(gs)->owner;
+    if (!this->exists()) {
+        return false;
     }
 
-    return false;
+    return this->data(gs)->name == core::Names::Constants::PackageSpecRegistry();
 }
 
 bool ClassOrModuleRef::isBuiltinGenericForwarder() const {
@@ -2699,7 +2697,6 @@ void ClassOrModule::addLoc(const core::GlobalState &gs, core::Loc loc) {
     // We shouldn't add locs for <root>, otherwise it'll end up with a massive loc list (O(number
     // of files)). Those locs aren't useful, either.
     ENFORCE(ref(gs) != Symbols::root());
-    ENFORCE(ref(gs) != Symbols::PackageSpecRegistry());
 
     addLocInternal(gs, loc, this->loc(), locs_);
 }

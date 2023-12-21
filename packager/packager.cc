@@ -454,29 +454,12 @@ void mustContainPackageDef(core::Context ctx, core::LocOffsets loc) {
     }
 }
 
-ast::ExpressionPtr prependName(ast::ExpressionPtr scope) {
-    auto lastConstLit = ast::cast_tree<ast::UnresolvedConstantLit>(scope);
-    ENFORCE(lastConstLit != nullptr);
-    while (auto constLit = ast::cast_tree<ast::UnresolvedConstantLit>(lastConstLit->scope)) {
-        lastConstLit = constLit;
-    }
-    lastConstLit->scope =
-        ast::MK::Constant(lastConstLit->scope.loc().copyWithZeroLength(), core::Symbols::PackageSpecRegistry());
-    return scope;
+ast::ExpressionPtr appendPackageSpecRegistry(ast::ExpressionPtr scope) {
+    return ast::MK::UnresolvedConstant(scope.loc(), move(scope), core::Names::Constants::PackageSpecRegistry());
 }
 
-bool startsWithPackageSpecRegistry(ast::UnresolvedConstantLit *cnst) {
-    while (cnst != nullptr) {
-        if (auto *scope = ast::cast_tree<ast::ConstantLit>(cnst->scope)) {
-            return scope->symbol == core::Symbols::PackageSpecRegistry();
-        } else if (auto *scope = ast::cast_tree<ast::UnresolvedConstantLit>(cnst->scope)) {
-            return startsWithPackageSpecRegistry(scope);
-        } else {
-            return false;
-        }
-    }
-
-    return false;
+bool isPackageSpecRegistry(const ast::UnresolvedConstantLit *cnst) {
+    return cnst->cnst == core::Names::Constants::PackageSpecRegistry();
 }
 
 ast::ExpressionPtr prependRoot(ast::ExpressionPtr scope) {
@@ -988,22 +971,26 @@ struct PackageSpecBodyWalk {
         if ((send.fun == core::Names::import() || send.fun == core::Names::testImport()) && send.numPosArgs() == 1) {
             // null indicates an invalid import.
             if (auto *target = verifyConstant(ctx, send.fun, send.getPosArg(0))) {
-                // Transform: `import Foo` -> `import <PackageSpecRegistry>::Foo`
+                // TODO(jez) We might be able to get rid of the `<PackageSpecRegistry>` stuff here,
+                // and simply use the resolved constants to look up the package for a DSL method
+                // with the symbol table.
+
+                // Transform: `import Foo` -> `import Foo::<PackageSpecRegistry>`
                 auto importArg = move(send.getPosArg(0));
                 send.removePosArg(0);
                 ENFORCE(send.numPosArgs() == 0);
-                send.addPosArg(prependName(move(importArg)));
+                send.addPosArg(appendPackageSpecRegistry(move(importArg)));
 
                 info.importedPackageNames.emplace_back(getPackageName(ctx, target), method2ImportType(send));
             }
         }
 
         if (send.fun == core::Names::restrictToService() && send.numPosArgs() == 1) {
-            // Transform: `restrict_to_service Foo` -> `restrict_to_service <PackageSpecRegistry>::Foo`
+            // Transform: `restrict_to_service Foo` -> `restrict_to_service Foo::<PackageSpecRegistry>`
             auto importArg = move(send.getPosArg(0));
             send.removePosArg(0);
             ENFORCE(send.numPosArgs() == 0);
-            send.addPosArg(prependName(move(importArg)));
+            send.addPosArg(appendPackageSpecRegistry(move(importArg)));
         }
 
         if (send.fun == core::Names::exportAll() && send.numPosArgs() == 0) {
@@ -1025,7 +1012,7 @@ struct PackageSpecBodyWalk {
                 auto importArg = move(send.getPosArg(0));
                 send.removePosArg(0);
                 ENFORCE(send.numPosArgs() == 0);
-                send.addPosArg(prependName(move(importArg)));
+                send.addPosArg(appendPackageSpecRegistry(move(importArg)));
 
                 info.visibleTo_.emplace_back(getPackageName(ctx, target));
             }
@@ -1045,7 +1032,7 @@ struct PackageSpecBodyWalk {
             return;
         }
 
-        if (startsWithPackageSpecRegistry(nameTree)) {
+        if (isPackageSpecRegistry(nameTree)) {
             this->foundFirstPackageSpec = true;
         } else if (this->foundFirstPackageSpec) {
             if (auto e = ctx.beginError(classDef.declLoc, core::errors::Packager::MultiplePackagesInOneFile)) {
@@ -1210,7 +1197,7 @@ unique_ptr<PackageInfoImpl> definePackage(const core::GlobalState &gs, ast::Pars
         }
 
         // ---- Mutates the tree ----
-        // `class Foo < PackageSpec` -> `class <PackageSpecRegistry>::Foo < PackageSpec`
+        // `class Foo < PackageSpec` -> `class Foo::<PackageSpecRegistry> < PackageSpec`
         // This removes the PackageSpec's themselves from the top-level namespace
         //
         // We can't do this rewrite in rewriter, because this rewrite should only happen if
@@ -1219,7 +1206,7 @@ unique_ptr<PackageInfoImpl> definePackage(const core::GlobalState &gs, ast::Pars
         //
         // Other than being able to say "we don't mutate the trees in packager" there's not much
         // value in going that far (even namer mutates the trees; the packager fills a similar role).
-        packageSpecClass->name = prependName(move(packageSpecClass->name));
+        packageSpecClass->name = appendPackageSpecRegistry(move(packageSpecClass->name));
 
         info = make_unique<PackageInfoImpl>(getPackageName(ctx, nameTree), ctx.locAt(packageSpecClass->loc),
                                             ctx.locAt(packageSpecClass->declLoc));

@@ -1,15 +1,15 @@
 # -- test/testdata/packager/nested_packages/__package.rb --
 class <emptyTree><<C <root>>> < (::<todo sym>)
-  class ::<PackageSpecRegistry>::<C Package><<C <todo sym>>> < (<emptyTree>::<C PackageSpec>)
-    <self>.import(::<PackageSpecRegistry>::<C Package>::<C Subpackage>)
+  class <emptyTree>::<C Package>::<C <PackageSpecRegistry>><<C <todo sym>>> < (<emptyTree>::<C PackageSpec>)
+    <self>.import(<emptyTree>::<C Package>::<C Subpackage>::<C <PackageSpecRegistry>>)
 
     <self>.export(::<root>::<C Package>::<C PackageClass>)
   end
 end
 # -- test/testdata/packager/nested_packages/subpackage/__package.rb --
 class <emptyTree><<C <root>>> < (::<todo sym>)
-  class ::<PackageSpecRegistry>::<C Package>::<C Subpackage><<C <todo sym>>> < (<emptyTree>::<C PackageSpec>)
-    <self>.import(::<PackageSpecRegistry>::<C Package>)
+  class <emptyTree>::<C Package>::<C Subpackage>::<C <PackageSpecRegistry>><<C <todo sym>>> < (<emptyTree>::<C PackageSpec>)
+    <self>.import(<emptyTree>::<C Package>::<C <PackageSpecRegistry>>)
 
     <self>.export(::<root>::<C Package>::<C Subpackage>::<C SubpackageClass>)
   end

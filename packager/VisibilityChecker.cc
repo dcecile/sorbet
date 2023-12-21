@@ -80,7 +80,7 @@ class PropagateVisibility final {
     // Lookup the package name on the given root symbol, and mark the final symbol as exported.
     void exportRoot(core::GlobalState &gs, core::ClassOrModuleRef sym) {
         // For a package named `A::B`, the ClassDef that we see in this pass is for a symbol named
-        // `<PackageSpecRegistry>::A::B`. In order to make the name `A::B` visibile to packages that have imported
+        // `A::B::<PackageSpecRegistry>`. In order to make the name `A::B` visibile to packages that have imported
         // `A::B`, we explicitly lookup and export them here. This is a design decision inherited from the previous
         // packages implementation, and we could remove it after migrating Stripe's codebase to not depend on package
         // names being exported by default.
@@ -109,7 +109,7 @@ class PropagateVisibility final {
         }
     }
 
-    // While processing the ClassDef for the package, which will be named something like `<PackageSpecRegistry>::A::B`,
+    // While processing the ClassDef for the package, which will be named something like `A::B::<PackageSpecRegistry>`,
     // we also check that the symbols `A::B` and `Test::A::B` have locations whose package matches the one we're
     // processing. If they don't match, we add locs to ensure that those symbols are associated with this package.
     //
@@ -123,14 +123,22 @@ class PropagateVisibility final {
     void setPackageLocs(core::MutableContext ctx, core::LocOffsets loc, core::ClassOrModuleRef sym) {
         std::vector<core::NameRef> names;
 
-        while (sym.exists() && sym != core::Symbols::PackageSpecRegistry()) {
+        // TODO(jez) Do we still need this code? It might go away, because now the intermediate
+        // namespace symbols in the package spec will literally BE the same as the namespaces in
+        // normal Ruby code, and so maybe they'll get locs set like normal?
+        while (sym.exists()) {
             // The symbol isn't a package name if it's defined outside of the package registry.
             if (sym == core::Symbols::root()) {
                 return;
             }
 
-            names.emplace_back(sym.data(ctx)->name);
+            auto name = sym.data(ctx)->name;
             sym = sym.data(ctx)->owner;
+            if (name == core::Names::Constants::PackageSpecRegistry()) {
+                continue;
+            }
+
+            names.emplace_back(name);
         }
 
         absl::c_reverse(names);

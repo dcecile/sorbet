@@ -1,12 +1,12 @@
 # -- test/testdata/packager/import_subpackage/a/__package.rb --
 class <emptyTree><<C <root>>> < (::<todo sym>)
-  class ::<PackageSpecRegistry>::<C Root><<C <todo sym>>> < (<emptyTree>::<C PackageSpec>)
-    <self>.import(::<PackageSpecRegistry>::<C Root>::<C B>)
+  class <emptyTree>::<C Root>::<C <PackageSpecRegistry>><<C <todo sym>>> < (<emptyTree>::<C PackageSpec>)
+    <self>.import(<emptyTree>::<C Root>::<C B>::<C <PackageSpecRegistry>>)
   end
 end
 # -- test/testdata/packager/import_subpackage/a/b/__package.rb --
 class <emptyTree><<C <root>>> < (::<todo sym>)
-  class ::<PackageSpecRegistry>::<C Root>::<C B><<C <todo sym>>> < (<emptyTree>::<C PackageSpec>)
+  class <emptyTree>::<C Root>::<C B>::<C <PackageSpecRegistry>><<C <todo sym>>> < (<emptyTree>::<C PackageSpec>)
     <self>.export(::<root>::<C Root>::<C B>::<C Foo>)
   end
 end
