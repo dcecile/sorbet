@@ -62,19 +62,21 @@ TEST_CASE("Infer") {
         auto trueClass = core::make_type<core::ClassType>(core::Symbols::TrueClass());
         auto stringLit = core::make_type<core::NamedLiteralType>(core::Symbols::String(), core::Names::assignTemp());
         auto stringClass = core::make_type<core::ClassType>(core::Symbols::String());
-        REQUIRE(core::Types::isSubType(gs, intLit, intClass));
-        REQUIRE(core::Types::isSubType(gs, floatLit, floatClass));
-        REQUIRE(core::Types::isSubType(gs, trueLit, trueClass));
-        REQUIRE(core::Types::isSubType(gs, stringLit, stringClass));
+        REQUIRE(core::Types::isSubType(gs, intLit, intClass, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, floatLit, floatClass, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, trueLit, trueClass, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, stringLit, stringClass, core::noOpErrorSectionCollector));
 
-        REQUIRE(core::Types::isSubType(gs, intLit, intLit));
-        REQUIRE(core::Types::isSubType(gs, floatLit, floatLit));
-        REQUIRE(core::Types::isSubType(gs, trueLit, trueLit));
-        REQUIRE(core::Types::isSubType(gs, stringLit, stringLit));
+        REQUIRE(core::Types::isSubType(gs, intLit, intLit, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, floatLit, floatLit, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, trueLit, trueLit, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, stringLit, stringLit, core::noOpErrorSectionCollector));
 
-        REQUIRE_FALSE(core::Types::isSubType(gs, intClass, intLit));
-        REQUIRE(core::Types::isSubType(gs, core::Types::top(), core::Types::untypedUntracked()));
-        REQUIRE(core::Types::isSubType(gs, core::Types::untypedUntracked(), core::Types::top()));
+        REQUIRE_FALSE(core::Types::isSubType(gs, intClass, intLit, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, core::Types::top(), core::Types::untypedUntracked(),
+                                       core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, core::Types::untypedUntracked(), core::Types::top(),
+                                       core::noOpErrorSectionCollector));
     }
 
     SUBCASE("ClassesSubtyping") {
@@ -89,10 +91,10 @@ TEST_CASE("Infer") {
         auto barType = core::make_type<core::ClassType>(barSymbol.asClassOrModuleRef());
         auto fooType = core::make_type<core::ClassType>(fooSymbol.asClassOrModuleRef());
 
-        REQUIRE(core::Types::isSubType(gs, fooType, barType));
-        REQUIRE(core::Types::isSubType(gs, fooType, fooType));
-        REQUIRE(core::Types::isSubType(gs, barType, barType));
-        REQUIRE_FALSE(core::Types::isSubType(gs, barType, fooType));
+        REQUIRE(core::Types::isSubType(gs, fooType, barType, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, fooType, fooType, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, barType, barType, core::noOpErrorSectionCollector));
+        REQUIRE_FALSE(core::Types::isSubType(gs, barType, fooType, core::noOpErrorSectionCollector));
     }
 
     SUBCASE("ClassesLubs") {
@@ -118,30 +120,30 @@ TEST_CASE("Infer") {
         auto foo2Nfoo1 = core::Types::any(gs, foo2Type, foo1Type);
 
         REQUIRE_EQ("ClassType", barNfoo1.typeName());
-        REQUIRE(core::Types::isSubType(gs, barType, barNfoo1));
-        REQUIRE(core::Types::isSubType(gs, foo1Type, barNfoo1));
+        REQUIRE(core::Types::isSubType(gs, barType, barNfoo1, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, foo1Type, barNfoo1, core::noOpErrorSectionCollector));
         REQUIRE_EQ("ClassType", barNfoo2.typeName());
-        REQUIRE(core::Types::isSubType(gs, barType, barNfoo2));
-        REQUIRE(core::Types::isSubType(gs, foo2Type, barNfoo2));
+        REQUIRE(core::Types::isSubType(gs, barType, barNfoo2, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, foo2Type, barNfoo2, core::noOpErrorSectionCollector));
         REQUIRE_EQ("ClassType", foo1Nbar.typeName());
-        REQUIRE(core::Types::isSubType(gs, barType, foo1Nbar));
-        REQUIRE(core::Types::isSubType(gs, foo1Type, foo1Nbar));
+        REQUIRE(core::Types::isSubType(gs, barType, foo1Nbar, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, foo1Type, foo1Nbar, core::noOpErrorSectionCollector));
         REQUIRE_EQ("ClassType", foo2Nbar.typeName());
-        REQUIRE(core::Types::isSubType(gs, barType, foo2Nbar));
-        REQUIRE(core::Types::isSubType(gs, foo2Type, foo2Nbar));
+        REQUIRE(core::Types::isSubType(gs, barType, foo2Nbar, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, foo2Type, foo2Nbar, core::noOpErrorSectionCollector));
 
-        REQUIRE(core::Types::equiv(gs, barNfoo2, foo2Nbar));
-        REQUIRE(core::Types::equiv(gs, barNfoo1, foo1Nbar));
-        REQUIRE(core::Types::equiv(gs, foo1Nfoo2, foo2Nfoo1));
+        REQUIRE(core::Types::equiv(gs, barNfoo2, foo2Nbar, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::equiv(gs, barNfoo1, foo1Nbar, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::equiv(gs, foo1Nfoo2, foo2Nfoo1, core::noOpErrorSectionCollector));
 
         auto intType = core::make_type<core::ClassType>(core::Symbols::Integer());
         auto intNfoo1 = core::Types::any(gs, foo1Type, intType);
         auto intNbar = core::Types::any(gs, barType, intType);
         auto intNfoo1Nbar = core::Types::any(gs, intNfoo1, barType);
-        REQUIRE(core::Types::equiv(gs, intNfoo1Nbar, intNbar));
+        REQUIRE(core::Types::equiv(gs, intNfoo1Nbar, intNbar, core::noOpErrorSectionCollector));
         auto intNfoo1Nfoo2 = core::Types::any(gs, intNfoo1, foo2Type);
         auto intNfoo1Nfoo2Nbar = core::Types::any(gs, intNfoo1Nfoo2, barType);
-        REQUIRE(core::Types::equiv(gs, intNfoo1Nfoo2Nbar, intNbar));
+        REQUIRE(core::Types::equiv(gs, intNfoo1Nfoo2Nbar, intNbar, core::noOpErrorSectionCollector));
     }
 
     SUBCASE("ClassesGlbs") {
@@ -167,21 +169,21 @@ TEST_CASE("Infer") {
         auto foo2Orfoo1 = core::Types::all(gs, foo2Type, foo1Type);
 
         REQUIRE_EQ("ClassType", barOrfoo1.typeName());
-        REQUIRE(core::Types::isSubType(gs, barOrfoo1, barType));
-        REQUIRE(core::Types::isSubType(gs, barOrfoo1, foo1Type));
+        REQUIRE(core::Types::isSubType(gs, barOrfoo1, barType, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, barOrfoo1, foo1Type, core::noOpErrorSectionCollector));
         REQUIRE_EQ("ClassType", barOrfoo2.typeName());
-        REQUIRE(core::Types::isSubType(gs, barOrfoo2, barType));
-        REQUIRE(core::Types::isSubType(gs, barOrfoo2, foo2Type));
+        REQUIRE(core::Types::isSubType(gs, barOrfoo2, barType, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, barOrfoo2, foo2Type, core::noOpErrorSectionCollector));
         REQUIRE_EQ("ClassType", foo1Orbar.typeName());
-        REQUIRE(core::Types::isSubType(gs, foo1Orbar, barType));
-        REQUIRE(core::Types::isSubType(gs, foo1Orbar, foo1Type));
+        REQUIRE(core::Types::isSubType(gs, foo1Orbar, barType, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, foo1Orbar, foo1Type, core::noOpErrorSectionCollector));
         REQUIRE_EQ("ClassType", foo2Orbar.typeName());
-        REQUIRE(core::Types::isSubType(gs, foo2Orbar, barType));
-        REQUIRE(core::Types::isSubType(gs, foo2Orbar, foo2Type));
+        REQUIRE(core::Types::isSubType(gs, foo2Orbar, barType, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::isSubType(gs, foo2Orbar, foo2Type, core::noOpErrorSectionCollector));
 
-        REQUIRE(core::Types::equiv(gs, barOrfoo2, foo2Orbar));
-        REQUIRE(core::Types::equiv(gs, barOrfoo1, foo1Orbar));
-        REQUIRE(core::Types::equiv(gs, foo1Orfoo2, foo2Orfoo1));
+        REQUIRE(core::Types::equiv(gs, barOrfoo2, foo2Orbar, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::equiv(gs, barOrfoo1, foo1Orbar, core::noOpErrorSectionCollector));
+        REQUIRE(core::Types::equiv(gs, foo1Orfoo2, foo2Orfoo1, core::noOpErrorSectionCollector));
     }
 }
 

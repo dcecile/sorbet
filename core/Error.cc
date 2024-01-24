@@ -172,6 +172,12 @@ void ErrorBuilder::addErrorSection(optional<ErrorSection> &&section) {
     }
 }
 
+void ErrorBuilder::addErrorSections(ErrorSectionCollector errorSectionCollector) {
+    for (auto x : errorSectionCollector.errorSections) {
+        addErrorSection(x);
+    }
+}
+
 void ErrorBuilder::addAutocorrect(AutocorrectSuggestion &&autocorrect) {
     ENFORCE(state == State::WillBuild);
     string sectionTitle;

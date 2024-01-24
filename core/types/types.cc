@@ -196,7 +196,8 @@ TypePtr Types::dropSubtypesOf(const GlobalState &gs, const TypePtr &from, ClassO
                 result = from;
             } else if (cdata->flags.isSealed && (cdata->flags.isAbstract || cdata->isModule())) {
                 auto subclasses = cdata->sealedSubclassesToUnion(gs);
-                ENFORCE(!Types::equiv(gs, subclasses, from), "sealedSubclassesToUnion about to cause infinite loop");
+                ENFORCE(!Types::equiv(gs, subclasses, from, core::noOpErrorSectionCollector),
+                        "sealedSubclassesToUnion about to cause infinite loop");
                 result = dropSubtypesOf(gs, subclasses, klass);
             } else {
                 result = from;
@@ -214,7 +215,8 @@ TypePtr Types::dropSubtypesOf(const GlobalState &gs, const TypePtr &from, ClassO
                 result = from;
             } else if (adata->flags.isSealed && (adata->flags.isAbstract || adata->isModule())) {
                 auto subclasses = adata->sealedSubclassesToUnion(gs);
-                ENFORCE(!Types::equiv(gs, subclasses, from), "sealedSubclassesToUnion about to cause infinite loop");
+                ENFORCE(!Types::equiv(gs, subclasses, from, core::noOpErrorSectionCollector),
+                        "sealedSubclassesToUnion about to cause infinite loop");
                 result = dropSubtypesOf(gs, subclasses, klass);
                 result = Types::all(gs, from, result);
             } else {
@@ -228,7 +230,7 @@ TypePtr Types::dropSubtypesOf(const GlobalState &gs, const TypePtr &from, ClassO
                 result = from;
             }
         });
-    SLOW_ENFORCE(Types::isSubType(gs, result, from),
+    SLOW_ENFORCE(Types::isSubType(gs, result, from, core::noOpErrorSectionCollector),
                  "dropSubtypesOf({}, {}) returned {}, which is not a subtype of the input", from.toString(gs),
                  klass.showFullName(gs), result.toString(gs));
     return result;
@@ -264,9 +266,9 @@ bool Types::canBeFalsy(const GlobalState &gs, const TypePtr &what) {
     if (what.isUntyped()) {
         return true;
     }
-    return Types::isSubType(gs, Types::falseClass(), what) ||
-           Types::isSubType(gs, Types::nilClass(),
-                            what); // check if inhabited by falsy values
+    return Types::isSubType(gs, Types::falseClass(), what, core::noOpErrorSectionCollector) ||
+           Types::isSubType(gs, Types::nilClass(), what,
+                            core::noOpErrorSectionCollector); // check if inhabited by falsy values
 }
 
 TypePtr Types::approximateSubtract(const GlobalState &gs, const TypePtr &from, const TypePtr &what) {
@@ -1073,7 +1075,8 @@ TypePtr Types::applyTypeArguments(const GlobalState &gs, const CallLocs &locs, u
             bool validBounds = true;
 
             // Validate type parameter bounds.
-            if (!Types::isSubType(gs, argType, memType->upperBound)) {
+            ErrorSectionCollector errorSectionCollector;
+            if (!Types::isSubType(gs, argType, memType->upperBound, errorSectionCollector)) {
                 validBounds = false;
                 if (auto e = gs.beginError(loc, errors::Resolver::GenericTypeParamBoundMismatch)) {
                     auto argStr = argType.show(gs);
@@ -1081,10 +1084,12 @@ TypePtr Types::applyTypeArguments(const GlobalState &gs, const CallLocs &locs, u
                                 mem.showFullName(gs));
                     e.addErrorLine(memData->loc(), "`{}` is `{}` bounded by `{}` here", mem.showFullName(gs), "upper",
                                    memType->upperBound.show(gs));
+                    e.addErrorSections(errorSectionCollector);
                 }
             }
 
-            if (!Types::isSubType(gs, memType->lowerBound, argType)) {
+            errorSectionCollector.errorSections.clear();
+            if (!Types::isSubType(gs, memType->lowerBound, argType, errorSectionCollector)) {
                 validBounds = false;
 
                 if (auto e = gs.beginError(loc, errors::Resolver::GenericTypeParamBoundMismatch)) {
@@ -1093,6 +1098,7 @@ TypePtr Types::applyTypeArguments(const GlobalState &gs, const CallLocs &locs, u
                                 mem.showFullName(gs));
                     e.addErrorLine(memData->loc(), "`{}` is `{}` bounded by `{}` here", mem.showFullName(gs), "lower",
                                    memType->lowerBound.show(gs));
+                    e.addErrorSections(errorSectionCollector);
                 }
             }
 

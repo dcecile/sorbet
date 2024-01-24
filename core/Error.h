@@ -106,6 +106,22 @@ public:
     }
 };
 
+class ErrorSectionCollector {
+public:
+    std::vector<ErrorSection> errorSections;
+
+    void addErrorSection(ErrorSection e) {
+        errorSections.push_back(e);
+    }
+};
+
+class NoOpErrorSectionCollector {
+public:
+    void addErrorSection(ErrorSection e) {}
+};
+
+static NoOpErrorSectionCollector noOpErrorSectionCollector;
+
 class ErrorBuilder {
     // An ErrorBuilder can be in three states:
     //
@@ -162,6 +178,7 @@ public:
         std::string formatted = ErrorColors::format(msg, std::forward<Args>(args)...);
         _setHeader(move(formatted));
     }
+    void addErrorSections(ErrorSectionCollector errorSectionCollector);
 
     void addAutocorrect(AutocorrectSuggestion &&autocorrect);
     template <typename... Args>
