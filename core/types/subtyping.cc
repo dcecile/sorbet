@@ -1268,19 +1268,36 @@ bool isSubTypeUnderConstraintSingle(const GlobalState &gs, TypeConstraint &const
                         int i = -1;
                         for (auto &el2 : a2->elems) {
                             ++i;
-                            result = Types::isSubTypeUnderConstraint(gs, constr, a1.elems[i], el2, mode,
-                                                                     errorSectionCollector);
-                            if (!result) {
-                                break;
+                            if (!Types::isSubTypeUnderConstraint(gs, constr, a1.elems[i], el2, mode,
+                                                                 errorSectionCollector)) {
+                                result = false;
+                                if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
+                                    // TODO: add explanation here
+                                } else {
+                                    break;
+                                }
                             }
+                        }
+                    } else {
+                        if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
+                            // TODO: add explanation here
+                        } else {
+                            return;
                         }
                     }
                 },
                 [&](const ShapeType &h1) { // Warning: this implements COVARIANT hashes
                     auto *h2 = cast_type<ShapeType>(t2);
                     result = h2 != nullptr && h2->keys.size() <= h1.keys.size();
-                    if (!result) {
-                        return;
+                    if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
+                        // TODO: explain
+                        if (h2 == nullptr) {
+                            return;
+                        }
+                    } else {
+                        if (!result) {
+                            return;
+                        }
                     }
                     // have enough keys.
                     int i = -1;
@@ -1289,12 +1306,19 @@ bool isSubTypeUnderConstraintSingle(const GlobalState &gs, TypeConstraint &const
                         auto optind = h1.indexForKey(el2);
                         if (!optind.has_value()) {
                             result = false;
-                            return;
-                        }
-                        if (!Types::isSubTypeUnderConstraint(gs, constr, h1.values[optind.value()], h2->values[i], mode,
-                                                             errorSectionCollector)) {
+                            if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
+                                // TODO: add explanation here
+                            } else {
+                                return;
+                            }
+                        } else if (!Types::isSubTypeUnderConstraint(gs, constr, h1.values[optind.value()],
+                                                                    h2->values[i], mode, errorSectionCollector)) {
                             result = false;
-                            return;
+                            if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
+                                // TODO: add explanation here
+                            } else {
+                                return;
+                            }
                         }
                     }
                 },
