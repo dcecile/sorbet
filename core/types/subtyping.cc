@@ -1272,7 +1272,10 @@ bool isSubTypeUnderConstraintSingle(const GlobalState &gs, TypeConstraint &const
                                                                  errorSectionCollector)) {
                                 result = false;
                                 if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
-                                    // TODO: add explanation here
+                                    // TODO: is this useful?
+                                    errorSectionCollector.addErrorSection(core::ErrorSection(
+                                        ErrorColors::format("Expected `{}` but found `{}` for item `{}`", el2.show(gs),
+                                                            a1.elems[i].show(gs), i)));
                                 } else {
                                     break;
                                 }
@@ -1280,10 +1283,12 @@ bool isSubTypeUnderConstraintSingle(const GlobalState &gs, TypeConstraint &const
                         }
                     } else {
                         if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
-                            // TODO: add explanation here
-                        } else {
-                            return;
+                            if (a2 != nullptr) {
+                                errorSectionCollector.addErrorSection(core::ErrorSection(ErrorColors::format(
+                                    "Not enough items. Expected: `{}`, got: `{}`", a2->elems.size(), a1.elems.size())));
+                            }
                         }
+                        return;
                     }
                 },
                 [&](const ShapeType &h1) { // Warning: this implements COVARIANT hashes
