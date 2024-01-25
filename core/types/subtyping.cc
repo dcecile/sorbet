@@ -1290,16 +1290,21 @@ bool isSubTypeUnderConstraintSingle(const GlobalState &gs, TypeConstraint &const
                     auto *h2 = cast_type<ShapeType>(t2);
                     result = h2 != nullptr && h2->keys.size() <= h1.keys.size();
                     if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
-                        // TODO: explain
                         if (h2 == nullptr) {
                             return;
                         }
+                        if (h2->keys.size() > h1.keys.size()) {
+                            errorSectionCollector.addErrorSection(core::ErrorSection(ErrorColors::format(
+                                "Not enough keys. Expected: `{}`, got: `{}`", h2->keys.size(), h1.keys.size())));
+                        }
+                        // If we're using this subtyping call to report an error, we should loop through all the items
+                        // even if there aren't enough keys, so we can report all the missing keys to the user.
                     } else {
                         if (!result) {
                             return;
                         }
                     }
-                    // have enough keys.
+                    // have enough keys (or this call is used for error reporting).
                     int i = -1;
                     for (auto &el2 : h2->keys) {
                         ++i;
@@ -1307,7 +1312,8 @@ bool isSubTypeUnderConstraintSingle(const GlobalState &gs, TypeConstraint &const
                         if (!optind.has_value()) {
                             result = false;
                             if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
-                                // TODO: add explanation here
+                                errorSectionCollector.addErrorSection(
+                                    core::ErrorSection(ErrorColors::format("Missing key: `{}`", el2.show(gs))));
                             } else {
                                 return;
                             }
@@ -1315,7 +1321,9 @@ bool isSubTypeUnderConstraintSingle(const GlobalState &gs, TypeConstraint &const
                                                                     h2->values[i], mode, errorSectionCollector)) {
                             result = false;
                             if constexpr (std::is_same<T, ErrorSectionCollector>::value) {
-                                // TODO: add explanation here
+                                errorSectionCollector.addErrorSection(core::ErrorSection(ErrorColors::format(
+                                    "Expected `{}` but found `{}` for key `{}`", h2->values[i].show(gs),
+                                    h1.values[optind.value()].show(gs), el2.show(gs))));
                             } else {
                                 return;
                             }
