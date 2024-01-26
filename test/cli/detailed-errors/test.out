@@ -1,0 +1,150 @@
+shapes.rb:10: Expected `[Integer, String]` but found `{}` for argument `x` https://srb.help/7002
+    10 |foo({})
+            ^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `{} (shape of T::Hash[T.untyped, T.untyped])` originating from:
+    shapes.rb:10:
+    10 |foo({})
+            ^^
+
+shapes.rb:11: Expected `[Integer, String]` but found `{a: Integer(1)}` for argument `x` https://srb.help/7002
+    11 |foo({a: 1})
+            ^^^^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `{a: Integer(1)} (shape of T::Hash[T.untyped, T.untyped])` originating from:
+    shapes.rb:11:
+    11 |foo({a: 1})
+            ^^^^^^
+
+shapes.rb:14: Expected `[Integer, String]` but found `{a: Integer(1), c: Integer(1)}` for argument `x` https://srb.help/7002
+    14 |foo({a: 1, c: 1})
+            ^^^^^^^^^^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `{a: Integer(1), c: Integer(1)} (shape of T::Hash[T.untyped, T.untyped])` originating from:
+    shapes.rb:14:
+    14 |foo({a: 1, c: 1})
+            ^^^^^^^^^^^^
+
+shapes.rb:15: Expected `[Integer, String]` but found `{c: Integer(1), d: Integer(1)}` for argument `x` https://srb.help/7002
+    15 |foo({c: 1, d: 1})
+            ^^^^^^^^^^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `{c: Integer(1), d: Integer(1)} (shape of T::Hash[T.untyped, T.untyped])` originating from:
+    shapes.rb:15:
+    15 |foo({c: 1, d: 1})
+            ^^^^^^^^^^^^
+
+shapes.rb:18: Expected `[Integer, String]` but found `{a: Integer(1), b: Integer(1)}` for argument `x` https://srb.help/7002
+    18 |foo({a: 1, b: 1})
+            ^^^^^^^^^^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `{a: Integer(1), b: Integer(1)} (shape of T::Hash[T.untyped, T.untyped])` originating from:
+    shapes.rb:18:
+    18 |foo({a: 1, b: 1})
+            ^^^^^^^^^^^^
+
+shapes.rb:19: Expected `[Integer, String]` but found `{a: String(""), b: Integer(1)}` for argument `x` https://srb.help/7002
+    19 |foo({a: '', b: 1})
+            ^^^^^^^^^^^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `{a: String(""), b: Integer(1)} (shape of T::Hash[T.untyped, T.untyped])` originating from:
+    shapes.rb:19:
+    19 |foo({a: '', b: 1})
+            ^^^^^^^^^^^^^
+
+shapes.rb:22: Expected `[Integer, String]` but found `{a: String(""), c: Integer(1)}` for argument `x` https://srb.help/7002
+    22 |foo({a: '', c: 1})
+            ^^^^^^^^^^^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `{a: String(""), c: Integer(1)} (shape of T::Hash[T.untyped, T.untyped])` originating from:
+    shapes.rb:22:
+    22 |foo({a: '', c: 1})
+            ^^^^^^^^^^^^^
+
+tuples.rb:10: Expected `[Integer, String]` but found `[]` for argument `x` https://srb.help/7002
+    10 |foo([])
+            ^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `[] (0-tuple)` originating from:
+    tuples.rb:10:
+    10 |foo([])
+            ^^
+  Not enough items. Expected: `2`, got: `0`
+
+tuples.rb:11: Expected `[Integer, String]` but found `[Integer(1)]` for argument `x` https://srb.help/7002
+    11 |foo([1])
+            ^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `[Integer(1)] (1-tuple)` originating from:
+    tuples.rb:11:
+    11 |foo([1])
+            ^^^
+  Not enough items. Expected: `2`, got: `1`
+
+tuples.rb:14: Expected `[Integer, String]` but found `[Integer(1), Integer(1)]` for argument `x` https://srb.help/7002
+    14 |foo([1, 1])
+            ^^^^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `[Integer(1), Integer(1)] (2-tuple)` originating from:
+    tuples.rb:14:
+    14 |foo([1, 1])
+            ^^^^^^
+  Expected `String` but found `Integer(1)` for item `1`
+
+tuples.rb:15: Expected `[Integer, String]` but found `[String(""), Integer(1)]` for argument `x` https://srb.help/7002
+    15 |foo(['', 1])
+            ^^^^^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `[String(""), Integer(1)] (2-tuple)` originating from:
+    tuples.rb:15:
+    15 |foo(['', 1])
+            ^^^^^^^
+  Expected `Integer` but found `String("")` for item `0`
+  Expected `String` but found `Integer(1)` for item `1`
+
+tuples.rb:18: Expected `[Integer, String]` but found `[String("")]` for argument `x` https://srb.help/7002
+    18 |foo([''])
+            ^^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    tuples.rb:5:
+     5 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `[String("")] (1-tuple)` originating from:
+    tuples.rb:18:
+    18 |foo([''])
+            ^^^^
+  Not enough items. Expected: `2`, got: `1`
+Errors: 12
