@@ -1,0 +1,146 @@
+test.rb:71: The `fixed` type bound `[]` must be equivalent to the parent's `fixed` type bound `[Integer]` for type_member `X` https://srb.help/5053
+    71 |  X = type_member {{ fixed: [] }}
+                                    ^^
+    test.rb:65: `C::X` defined in parent here
+    65 |  X = type_member {{ fixed: [Integer] }}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Not enough items. Expected: `1`, got: `0`
+  Autocorrect: Use `-a` to autocorrect
+    test.rb:71: Replace with `[Integer]`
+    71 |  X = type_member {{ fixed: [] }}
+                                    ^^
+
+test.rb:77: The `lower` type bound `[]` is not a subtype of the `upper` type bound `[Integer]` for `E::X` https://srb.help/5052
+    77 |  X = type_member {{upper: [Integer], lower: [] }}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Not enough items. Expected: `1`, got: `0`
+
+test.rb:50: Parameter `x` of type `[String]` not compatible with type of overridable method `A#foo` https://srb.help/5035
+    50 |  def foo(x, &blk)
+          ^^^^^^^^^^^^^^^^
+    test.rb:37: The super method parameter `x` was declared here with type `[Integer]`
+    37 |  def foo(x, &blk)
+          ^^^^^^^^^^^^^^^^
+  Note:
+    A parameter's type must be a supertype of the same parameter's type on the super method.
+  Expected `String` but found `Integer` for item `0`
+
+test.rb:50: Block parameter `blk` of type `T.proc.returns([Integer, String])` not compatible with type of overridable method `A#foo` https://srb.help/5035
+    50 |  def foo(x, &blk)
+          ^^^^^^^^^^^^^^^^
+    test.rb:37: The super method parameter `blk` was declared here with type `T.proc.returns([Integer])`
+    37 |  def foo(x, &blk)
+          ^^^^^^^^^^^^^^^^
+  Note:
+    A parameter's type must be a supertype of the same parameter's type on the super method.
+  Not enough items. Expected: `2`, got: `1`
+
+test.rb:50: Return type `[String]` does not match return type of overridable method `A#foo` https://srb.help/5035
+    50 |  def foo(x, &blk)
+          ^^^^^^^^^^^^^^^^
+    test.rb:37: Super method defined here with return type `[Integer]`
+    37 |  def foo(x, &blk)
+          ^^^^^^^^^^^^^^^^
+  Note:
+    A method's return type must be a subtype of the return type on the super method.
+  Expected `Integer` but found `String` for item `0`
+
+test.rb:7: Expected `[Integer, String]` but found `[]` for method result type https://srb.help/7005
+     7 |  []
+          ^^
+  Expected `[Integer, String]` for result type of method `foo`:
+    test.rb:6:
+     6 |def foo(x)
+        ^^^^^^^^^^
+  Got `[] (0-tuple)` originating from:
+    test.rb:7:
+     7 |  []
+          ^^
+  Not enough items. Expected: `2`, got: `0`
+
+test.rb:10: Expected `[Integer, String]` but found `[]` for argument `x` https://srb.help/7002
+    10 |foo([])
+            ^^
+  Expected `[Integer, String]` for argument `x` of method `Object#foo`:
+    test.rb:5:
+     5 |sig { params(x: [Integer, String]).returns([Integer, String]) }
+                     ^
+  Got `[] (0-tuple)` originating from:
+    test.rb:10:
+    10 |foo([])
+            ^^
+  Not enough items. Expected: `2`, got: `0`
+
+test.rb:17: Expected `[Integer, String]` for keyword parameter `x` but found `[]` from keyword splat https://srb.help/7002
+    17 |bar(**h)
+            ^^^
+  Expected `[Integer, String]` for argument `x` of method `Object#bar`:
+    test.rb:12:
+    12 |sig { params(x: [Integer, String]).void }
+                     ^
+  Got `T::Hash[Symbol, []]` originating from:
+    test.rb:16:
+    16 |h = T.let({}, T::Hash[Symbol, []])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    test.rb:17:
+    17 |bar(**h)
+            ^^^
+  Note:
+    A `Hash` passed as a keyword splat must match the type of all keyword parameters
+    because Sorbet cannot see what specific keys exist in the `Hash`.
+  Not enough items. Expected: `2`, got: `0`
+  Autocorrect: Use `-a` to autocorrect
+    test.rb:17: Replace with `T.unsafe(h)`
+    17 |bar(**h)
+              ^
+
+test.rb:24: Expected `T.proc.params(arg0: [Integer]).returns([Integer])` but found `T.proc.params(arg0: [Integer, String]).returns([Integer])` for block argument https://srb.help/7002
+    24 |baz(&p)
+        ^^^^^^^
+  Expected `T.proc.params(arg0: [Integer]).returns([Integer])` for for block argument `blk` of method `Object#baz`:
+    test.rb:19:
+    19 |sig {params(blk: T.proc.params(x: [Integer]).returns([Integer])).void}
+                    ^^^
+  Not enough items. Expected: `2`, got: `1`
+
+test.rb:27: Expected `[Integer]` but found `[]` for block result type https://srb.help/7005
+    27 |  []
+          ^^
+  Expected `[Integer]` for block result type:
+    test.rb:19:
+    19 |sig {params(blk: T.proc.params(x: [Integer]).returns([Integer])).void}
+                    ^^^
+  Got `[] (0-tuple)` originating from:
+    test.rb:27:
+    27 |  []
+          ^^
+  Not enough items. Expected: `1`, got: `0`
+
+test.rb:42: `[String]` is not a subtype of upper bound of type member `::A::X` https://srb.help/5060
+    42 |A[[String]]
+          ^^^^^^^^
+    test.rb:34: `::A::X` is `upper` bounded by `[Integer]` here
+    34 |  X = type_member {{upper: [Integer], lower: [Integer, String] }}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Expected `Integer` but found `String` for item `0`
+
+test.rb:42: `[String]` is not a supertype of lower bound of type member `::A::X` https://srb.help/5060
+    42 |A[[String]]
+          ^^^^^^^^
+    test.rb:34: `::A::X` is `lower` bounded by `[Integer, String]` here
+    34 |  X = type_member {{upper: [Integer], lower: [Integer, String] }}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Expected `String` but found `Integer` for item `0`
+
+test.rb:58: Changing the type of a variable in a loop is not permitted https://srb.help/7001
+    58 |  a = []
+              ^^
+  Existing variable has type: `[Integer(1)]`
+  Attempting to change type to: `[]`
+
+  Autocorrect: Use `-a` to autocorrect
+    test.rb:55: Replace with `T.let([1], T::Array[T.untyped])`
+    55 |a = [1]
+            ^^^
+  Not enough items. Expected: `1`, got: `0`
+Errors: 13
