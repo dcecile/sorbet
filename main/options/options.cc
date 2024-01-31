@@ -366,8 +366,8 @@ buildOptions(const vector<pipeline::semantic_extension::SemanticExtensionProvide
     options.add_options("advanced")("enable-experimental-requires-ancestor",
                                     "Enable experimental `requires_ancestor` annotation");
 
-    options.add_options("advanced")("enable-experimental-lsp-extract-to-variable",
-                                    "Enable experimental LSP feature: Extract To Variable");
+    options.add_options("advanced")("enable-beta-lsp-extract-to-variable",
+                                    "Enable beta LSP feature: Extract To Variable");
 
     options.add_options("advanced")(
         "enable-all-experimental-lsp-features",
@@ -743,13 +743,13 @@ void readOptions(Options &opts,
 
         bool enableAllLSPFeatures = raw["enable-all-experimental-lsp-features"].as<bool>();
         opts.lspAllBetaFeaturesEnabled = enableAllLSPFeatures || raw["enable-all-beta-lsp-features"].as<bool>();
+        opts.lspExtractToVariableEnabled =
+            opts.lspAllBetaFeaturesEnabled || raw["enable-beta-lsp-extract-to-variable"].as<bool>();
         opts.lspDocumentSymbolEnabled =
             opts.lspAllBetaFeaturesEnabled || raw["enable-experimental-lsp-document-symbol"].as<bool>();
         opts.lspDocumentHighlightEnabled =
             enableAllLSPFeatures || raw["enable-experimental-lsp-document-highlight"].as<bool>();
         opts.lspSignatureHelpEnabled = enableAllLSPFeatures || raw["enable-experimental-lsp-signature-help"].as<bool>();
-        opts.lspExtractToVariableEnabled =
-            enableAllLSPFeatures || raw["enable-experimental-lsp-extract-to-variable"].as<bool>();
         opts.rubyfmtPath = raw["rubyfmt-path"].as<string>();
         if (enableAllLSPFeatures || raw["enable-experimental-lsp-document-formatting-rubyfmt"].as<bool>()) {
             if (!FileOps::exists(opts.rubyfmtPath)) {

@@ -553,8 +553,7 @@ TEST_CASE("LSPTest") {
         opts->requiresAncestorEnabled =
             BooleanPropertyAssertion::getValue("enable-experimental-requires-ancestor", assertions).value_or(false);
         opts->lspExtractToVariableEnabled =
-            BooleanPropertyAssertion::getValue("enable-experimental-lsp-extract-to-variable", assertions)
-                .value_or(false);
+            BooleanPropertyAssertion::getValue("enable-beta-lsp-extract-to-variable", assertions).value_or(false);
         opts->stripePackages = BooleanPropertyAssertion::getValue("enable-packager", assertions).value_or(false);
 
         if (opts->stripePackages) {
